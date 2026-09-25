@@ -60,3 +60,6 @@ def update_employe(employe_id: int, employe: schemas.EmployeCreate, db: Session 
 def delete_employe(employe_id: int, db: Session = Depends(get_db)):
     crud.delete_employe(db, employe_id)
     return {"message": "Employé supprimé avec succès"}
+
+
+
