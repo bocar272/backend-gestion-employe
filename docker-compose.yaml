@@ -1,0 +1,42 @@
+services:
+  postgres_server:
+    image: postgres:17
+    container_name: postgres-prod
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: dbdit
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d dbdit"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://admin:admin123@postgres_server:5432/dbdit
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres_server:
+        condition: service_healthy
+
+  frontend:
+    build: ../frontend-gestion-employe
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: gestion-network
+    driver: bridge
+
+volumes:
+  db_data:
